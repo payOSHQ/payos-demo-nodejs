@@ -1,22 +1,22 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const PayOS = require('@payos/node');
+const cors = require('cors');
+const payOS = require('./utils/payos');
 
 const app = express();
 const PORT = process.env.PORT || 3030;
 dotenv.config();
 
-app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
 app.use('/', express.static('public'));
-
-const YOUR_DOMAIN = 'http://localhost:3030';
-const YOUR_PAYOS_CLIENT_ID = process.env.PAYOS_CLIENT_ID;
-const YOUR_PAYOS_API_KEY = process.env.PAYOS_API_KEY;
-const YOUR_PAYOS_CHECKSUM_KEY = process.env.PAYOS_CHECKSUM_KEY;
-
-const payos = new PayOS(YOUR_PAYOS_CLIENT_ID, YOUR_PAYOS_API_KEY, YOUR_PAYOS_CHECKSUM_KEY);
+app.use("/payment", require("./controllers/payment-controller"));
+app.use("/order", require("./controllers/order-controller"));
 
 app.post('/create-payment-link', async (req, res) => {
+    const YOUR_DOMAIN = 'http://localhost:3030';
     const body = {
         orderCode: Number(String(Date.now()).slice(-6)),
         amount: 1000,
@@ -26,7 +26,7 @@ app.post('/create-payment-link', async (req, res) => {
     };
 
     try {
-        const paymentLinkResponse = await payos.createPaymentLink(body);
+        const paymentLinkResponse = await payOS.createPaymentLink(body);
         res.redirect(paymentLinkResponse.checkoutUrl);  
     } catch (error) {
         console.error(error);
