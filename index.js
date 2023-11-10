@@ -12,8 +12,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use('/', express.static('public'));
-app.use("/payment", require("./controllers/payment-controller"));
-app.use("/order", require("./controllers/order-controller"));
+app.use('/payment', require('./controllers/payment-controller'));
+app.use('/order', require('./controllers/order-controller'));
 
 app.post('/create-payment-link', async (req, res) => {
     const YOUR_DOMAIN = 'http://localhost:3030';
